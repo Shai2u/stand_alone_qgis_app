@@ -7,10 +7,10 @@ from qgis.core import (
     QgsCoordinateReferenceSystem
 )
 from qgis.gui import QgsMapCanvas, QgsMapTool
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton
 from PyQt5.QtCore import Qt
 
-class   MouseTracker(QgsMapTool):
+class MouseTracker(QgsMapTool):
     def __init__(self, canvas, label):
         super().__init__(canvas)
         self.canvas = canvas
@@ -36,11 +36,12 @@ class QGISStandaloneApp(QMainWindow):
         self.project = QgsProject.instance()
         self.canvas.setDestinationCrs(crs)
 
-
-
         # Set up the layout
-        layout = QVBoxLayout()
-        layout.addWidget(self.canvas)
+        main_layout = QVBoxLayout()
+        canvas_layout = QVBoxLayout()
+        bottom_layout = QHBoxLayout()
+
+        canvas_layout.addWidget(self.canvas)
 
         self.label = QLabel("Mouse Coordinates: (0, 0)", self)
         self.label.setAlignment(Qt.AlignCenter)
@@ -49,21 +50,23 @@ class QGISStandaloneApp(QMainWindow):
         self.mouse_tracker = MouseTracker(self.canvas, self.label)
         self.canvas.setMapTool(self.mouse_tracker)
 
-        # Add widget
-        layout.addWidget(self.label)
+        # Add widgets to the bottom layout
+        bottom_layout.addWidget(self.label)
 
         # Add button to add a GeoJSON layer
         self.add_layer_button = QPushButton("Add GeoJSON Layer", self)
         self.add_layer_button.clicked.connect(self.add_geojson_layer)
-        layout.addWidget(self.add_layer_button)
+        bottom_layout.addWidget(self.add_layer_button)
+
+        main_layout.addLayout(canvas_layout)
+        main_layout.addLayout(bottom_layout)
 
         container = QWidget()
-        container.setLayout(layout)
+        container.setLayout(main_layout)
         self.setCentralWidget(container)
 
         # Load layers
         self.load_layer()
-
 
     def add_geojson_layer(self):
         # Example: Load a shapefile layer
@@ -84,7 +87,6 @@ class QGISStandaloneApp(QMainWindow):
         layers = self.canvas.layers()
         layers = [layer] + layers
         self.canvas.setLayers(layers)
-
 
     def load_layer(self):
         # Example: Load a shapefile layer
@@ -109,7 +111,6 @@ class QGISStandaloneApp(QMainWindow):
         basemap = self.add_basemap()
         self.canvas.setLayers([layer, basemap])
 
-
     def add_basemap(self):
         # OpenStreetMap XYZ Tile Layer URL
         url = 'crs=EPSG:4326&format=image/png&type=xyz&url=http://a.tile.openstreetmap.org/%7Bz%7D/%7Bx%7D/%7By%7D.png'
@@ -119,7 +120,6 @@ class QGISStandaloneApp(QMainWindow):
             return basemap
         else:
             print("Failed to load basemap!")
-
 
 def main():
     # Initialize QGIS Application
@@ -138,7 +138,6 @@ def main():
 
     # Exit QGIS
     qgis_app.exitQgis()
-
 
 if __name__ == "__main__":
     main()
