@@ -2,6 +2,8 @@
 
 This README provides instructions for running the Example app for QGIS on a Mac as a standalone application.
 
+![example](./media/example.png)
+
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
