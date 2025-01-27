@@ -2,6 +2,10 @@
 
 This README provides instructions for running the Example app for QGIS on a Mac as a standalone application.
 
+## About the App
+
+Currently, the app is a proof of concept. It tracks the mouse coordinates and adds a GeoJSON file.
+
 ![example](./media/example.png)
 
 ## Prerequisites
