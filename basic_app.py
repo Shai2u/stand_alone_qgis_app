@@ -7,7 +7,7 @@ from qgis.core import (
     QgsCoordinateReferenceSystem
 )
 from qgis.gui import QgsMapCanvas, QgsMapTool
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QPushButton
 from PyQt5.QtCore import Qt
 
 class   MouseTracker(QgsMapTool):
@@ -31,11 +31,11 @@ class QGISStandaloneApp(QMainWindow):
 
         # Initialize QGIS Map Canvas
         self.canvas = QgsMapCanvas()
-        # self.canvas.setCanvasColor("white")
 
         crs = QgsCoordinateReferenceSystem(4326)
         self.project = QgsProject.instance()
         self.canvas.setDestinationCrs(crs)
+
 
 
         # Set up the layout
@@ -52,12 +52,38 @@ class QGISStandaloneApp(QMainWindow):
         # Add widget
         layout.addWidget(self.label)
 
+        # Add button to add a GeoJSON layer
+        self.add_layer_button = QPushButton("Add GeoJSON Layer", self)
+        self.add_layer_button.clicked.connect(self.add_geojson_layer)
+        layout.addWidget(self.add_layer_button)
+
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
 
         # Load layers
         self.load_layer()
+
+
+    def add_geojson_layer(self):
+        # Example: Load a shapefile layer
+        layer_path = "sample_geojson/add_points.geojson"
+        layer = QgsVectorLayer(layer_path, "Add Points", "ogr")
+        if not layer.isValid():
+            print(f"Failed to load layer: {layer_path}")
+            return
+
+        # Add layer to the QGIS project
+        self.project.addMapLayer(layer)
+
+        # Set layer style
+        symbol = layer.renderer().symbol()
+        symbol.setColor(Qt.blue)
+
+        # Add basemap
+        layers = self.canvas.layers()
+        layers = [layer] + layers
+        self.canvas.setLayers(layers)
 
 
     def load_layer(self):
